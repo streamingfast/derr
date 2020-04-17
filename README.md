@@ -1,9 +1,12 @@
-## EOS Canada Errors Library
+# dfuse Errors Library
+[![reference](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://pkg.go.dev/github.com/dfuse-io/derr)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This repository contains all common stuff around errors handling across our
-various services
+This repository contains all common code for handling errors across our
+various services. It is part of **[dfuse](https://github.com/dfuse-io/dfuse)**.
 
-### How to use
+
+## Usage
 
 1. Use  `derr.Wrap(err, "some  message")`  to  wrap  any calls  to  a
    sub-system that *could* have  yielded some `derr.ErrorResponse` (so
@@ -14,13 +17,12 @@ various services
    [`errors.go`](./errors.go) and use that.
 3. Craft your own custom Error builder (in your project's `errors.go`,
    see
-   [eosws for example](https://github.com/eoscanada/eosws/blob/master/errors.go))
+   [eosws](https://github.com/dfuse-io/dgraphql/blob/develop/errors.go))
    and use that in your code.  Craft a meaningful `derr.C` (or
    `derr.ErrorCode`) with a good name (see below), reuse where
    possible.
 
-
-### gRPC-based error handling
+### gRPC APIs
 
 We create `derr.Status` errors when we want to set a specific error
 code. We call `derr.Wrap` to prefix the error message going out
@@ -32,9 +34,7 @@ Returning plain `fmt.Errorf()` upstream implies returning a
 Missing a `derr.Wrap()` kills the links and removes the StatusCode, so
 use `Wrap` (or `Wrapf`) whenever you want to add a prefix.
 
-
-
-### Philosophy for our REST APIs
+### REST APIs
 
 All error should be created by defining a properly named function that receives a `context.Context`
 object as well as specialized parameters to craft a proper error message and details. This specific
@@ -73,9 +73,7 @@ analysis of the problem.
 Moreover, the idiomatic way to group errors is to put them all in a file `errors.go` in the root package
 of the service so they are all easily discoverable in a single location.
 
-### Usage
-
-#### JSON Format
+### JSON Format
 
 Here the explained JSON format:
 
@@ -98,7 +96,7 @@ Here the explained JSON format:
 | `message` | A message describing the error. The audience of the message is the end user. Should be a full sentence ending with a dot. |
 | `details` | A key-value map of extra details specific to the error. Usually contains faulty parameters and extra details about the error. |
 
-#### Wrap
+### Wrap
 
 This package is aware of wrapped errors through the [github.com/pkg/errors](https://github.com/pkg/errors)
 package.
@@ -111,7 +109,7 @@ conflict with the standard `errors` package).
 You can simply use `derr.Wrap` and `derr.Wrapf` to wrap your errors with newer contextual
 errors.
 
-#### Write Error
+### Write Error
 
 The package provides a facility to write any `error` object back to the user. The
 `derr.WriteError(ctx context.Context, w http.ResponseWriter, message string, err error)` will correctly
@@ -127,3 +125,21 @@ the `Error` level is used. Otherwise, a `Debug` level is used to log the error.
 
 This error logging will ultimately trickle down to our monitoring infrastructure, so if you use
 `WriteError`, be sure to not log it again!
+
+
+## Contributing
+
+**Issues and PR in this repo related strictly to the dauth library.**
+
+Report any protocol-specific issues in their
+[respective repositories](https://github.com/dfuse-io/dfuse#protocols)
+
+**Please first refer to the general
+[dfuse contribution guide](https://github.com/dfuse-io/dfuse#contributing)**,
+if you wish to contribute to this code base.
+
+
+## License
+
+[Apache 2.0](LICENSE)
+
