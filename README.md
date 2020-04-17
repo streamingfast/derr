@@ -129,7 +129,7 @@ This error logging will ultimately trickle down to our monitoring infrastructure
 
 ## Contributing
 
-**Issues and PR in this repo related strictly to the dauth library.**
+**Issues and PR in this repo related strictly to the derr library.**
 
 Report any protocol-specific issues in their
 [respective repositories](https://github.com/dfuse-io/dfuse#protocols)
