@@ -17,7 +17,6 @@ package derr
 import (
 	"fmt"
 
-	pkgErrors "github.com/pkg/errors"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -35,7 +34,11 @@ func Wrap(err error, message string) error {
 		return status.ErrorProto(newSts)
 	}
 
-	return pkgErrors.Wrap(err, message)
+	if err == nil {
+		return nil
+	}
+
+	return fmt.Errorf(message+": %w", err)
 }
 
 // Wrapf is a shortcut for `pkgErrors.Wrapf` (where `pkgErrors` is `github.com/pkg/errors`)
@@ -50,19 +53,21 @@ func Wrapf(err error, format string, args ...interface{}) error {
 		return status.ErrorProto(newSts)
 	}
 
-	return pkgErrors.Wrapf(err, format, args...)
+	if err == nil {
+		return nil
+	}
+
+	return fmt.Errorf(fmt.Sprintf(format, args...)+": %w", err)
 }
 
 func WrapCode(code codes.Code, err error, message string) error {
 	// ici on ajouterait le `Code` précédent dans le `err`qui est un `status.Status` en
 	// [PreviousCode].
 	panic("unimplemented")
-	return nil
 }
 
 func WrapfCode(code codes.Code, err error, format string, args ...interface{}) error {
 	panic("unimplemented")
-	return nil
 }
 
 func Status(code codes.Code, message string) error {

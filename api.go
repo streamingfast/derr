@@ -21,43 +21,30 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Walk traverse error causes in a top to bottom fashion. Starting from the top
-// `err` received, will invoke `processor(err)` with it. If the `processor`
-// returns `true`, check if `err` has a cause and continue walking it like
-// this recursively. If `processor` return a `non-nil` value, stop walking at
-// this point. If `processor` returns an `error` stop walking from there and bubble
-// up the error through `Walk` return value.
-//
-// Returns an `error` if `processor` returned an `error`, `nil` otherwise
-func Walk(err error, processor func(err error) (bool, error)) error {
-	type causer interface {
-		Cause() error
-	}
-
-	shouldContinue, childErr := processor(err)
-	if !shouldContinue {
-		return childErr
-	}
-
-	for err != nil {
-		cause, ok := err.(causer)
-		if !ok {
-			return nil
-		}
-
-		err = cause.Cause()
-		shouldContinue, childErr := processor(err)
-		if !shouldContinue {
-			return childErr
-		}
-	}
-
-	return nil
+type causer interface {
+	Cause() error
 }
 
-// FindFirstMatching walks the error(s) stack (causes chain) and return the first
-// error matching the `matcher` function received in argument
-func FindFirstMatching(err error, matcher func(err error) bool) error {
+type wrapper interface {
+	Unwrap() error
+}
+
+// Is reports whether any error in err's chain matches target.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap (or Cause).
+func Is(err error, cause error) bool {
+	return Find(err, func(candidateErr error) bool {
+		return candidateErr == cause
+	}) != nil
+}
+
+// Find walks the error(s) stack (causes chain) and return the first
+// error matching the `matcher` function received in argument.
+//
+// Act exactly like `errors.Is` but using a matcher function instead of
+// trying to match a particular address.
+func Find(err error, matcher func(err error) bool) error {
 	var matchedErr error
 	Walk(err, func(candidateErr error) (bool, error) {
 		if matcher(candidateErr) {
@@ -71,12 +58,57 @@ func FindFirstMatching(err error, matcher func(err error) bool) error {
 	return matchedErr
 }
 
+// Walk traverse error causes in a top to bottom fashion. Starting from the top
+// `err` received, will invoke `processor(err)` with it. If the `processor`
+// returns `true`, check if `err` has a cause and continue walking it like
+// this recursively. If `processor` return a `non-nil` value, stop walking at
+// this point. If `processor` returns an `error` stop walking from there and bubble
+// up the error through `Walk` return value.
+//
+// Returns an `error` if `processor` returned an `error`, `nil` otherwise
+func Walk(err error, processor func(err error) (bool, error)) error {
+	shouldContinue, childErr := processor(err)
+	if !shouldContinue {
+		return childErr
+	}
+
+	for err != nil {
+		switch v := err.(type) {
+		case causer:
+			err = v.Cause()
+		case wrapper:
+			err = v.Unwrap()
+		default:
+			return nil
+		}
+
+		if err == nil {
+			return nil
+		}
+
+		shouldContinue, childErr := processor(err)
+		if !shouldContinue {
+			return childErr
+		}
+	}
+
+	return nil
+}
+
+// FindFirstMatching walks the error(s) stack (causes chain) and return the first
+// error matching the `matcher` function received in argument.
+//
+// Deprecated: FindFirstMatching has been renamed to `Find`.
+func FindFirstMatching(err error, matcher func(err error) bool) error {
+	return Find(err, matcher)
+}
+
 // HasAny returns `true` if the `err` argument or any of its cause(s) is equal
 // to `cause` argument, `false` otherwise.
+//
+// Deprecated: HasAny has been renamed to `Is`, use it instead of this method.
 func HasAny(err error, cause error) bool {
-	return FindFirstMatching(err, func(candidateErr error) bool {
-		return candidateErr == cause
-	}) != nil
+	return Is(err, cause)
 }
 
 // ToErrorResponse turns a plain `error` interface into a proper `ErrorResponse`
@@ -87,12 +119,12 @@ func HasAny(err error, cause error) bool {
 // - If `err` is a status.Status (or one that was wrapped), convert it to an ErrorResponse
 // - Otherwise, return an `UnexpectedError` with the cause sets to `err` received.
 func ToErrorResponse(ctx context.Context, err error) *ErrorResponse {
-	response := FindFirstMatching(err, isErrorResponse)
+	response := Find(err, isErrorResponse)
 	if response != nil {
 		return response.(*ErrorResponse)
 	}
 
-	response = FindFirstMatching(err, isStatusCode)
+	response = Find(err, isStatusCode)
 	if response != nil {
 		status, _ := status.FromError(err)
 		return convertStatusToErrorResponse(ctx, status)

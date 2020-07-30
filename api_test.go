@@ -30,19 +30,19 @@ var testErrOneDeep = Wrap(errTestFake, "one deep")
 var testErrTwoDeep = Wrap(Wrap(errTestFake, "one deep"), "two deep")
 var testErrThreeDeep = Wrap(Wrap(Wrap(errTestFake, "one deep"), "two deep"), "three deep")
 
-func Test_HasAny(t *testing.T) {
-	assert.True(t, HasAny(testErrNoDeep, errTestFake))
-	assert.True(t, HasAny(testErrOneDeep, errTestFake))
-	assert.True(t, HasAny(testErrTwoDeep, errTestFake))
-	assert.True(t, HasAny(testErrThreeDeep, errTestFake))
+func Test_Is(t *testing.T) {
+	assert.True(t, Is(testErrNoDeep, errTestFake))
+	assert.True(t, Is(testErrOneDeep, errTestFake))
+	assert.True(t, Is(testErrTwoDeep, errTestFake))
+	assert.True(t, Is(testErrThreeDeep, errTestFake))
 
-	assert.False(t, HasAny(testErrNoDeep, errTestFakeOther))
-	assert.False(t, HasAny(testErrOneDeep, errTestFakeOther))
-	assert.False(t, HasAny(testErrTwoDeep, errTestFakeOther))
-	assert.False(t, HasAny(testErrThreeDeep, errTestFakeOther))
+	assert.False(t, Is(testErrNoDeep, errTestFakeOther))
+	assert.False(t, Is(testErrOneDeep, errTestFakeOther))
+	assert.False(t, Is(testErrTwoDeep, errTestFakeOther))
+	assert.False(t, Is(testErrThreeDeep, errTestFakeOther))
 }
 
-func Test_FindFirstMatching(t *testing.T) {
+func Test_Find(t *testing.T) {
 	matcher := func(candidate error) bool {
 		return strings.Contains(candidate.Error(), "two deep")
 	}
@@ -50,18 +50,18 @@ func Test_FindFirstMatching(t *testing.T) {
 	alwaysMatching := func(candidate error) bool { return true }
 	neverMatching := func(candidate error) bool { return false }
 
-	assert.Equal(t, nil, FindFirstMatching(testErrNoDeep, matcher))
-	assert.Equal(t, nil, FindFirstMatching(testErrOneDeep, matcher))
-	assert.Equal(t, testErrTwoDeep, FindFirstMatching(testErrTwoDeep, matcher))
-	assert.Equal(t, testErrThreeDeep, FindFirstMatching(testErrThreeDeep, matcher))
+	assert.Equal(t, nil, Find(testErrNoDeep, matcher))
+	assert.Equal(t, nil, Find(testErrOneDeep, matcher))
+	assert.Equal(t, testErrTwoDeep, Find(testErrTwoDeep, matcher))
+	assert.Equal(t, testErrThreeDeep, Find(testErrThreeDeep, matcher))
 
-	assert.Equal(t, testErrNoDeep, FindFirstMatching(testErrNoDeep, alwaysMatching))
-	assert.Equal(t, testErrOneDeep, FindFirstMatching(testErrOneDeep, alwaysMatching))
-	assert.Equal(t, testErrTwoDeep, FindFirstMatching(testErrTwoDeep, alwaysMatching))
-	assert.Equal(t, testErrThreeDeep, FindFirstMatching(testErrThreeDeep, alwaysMatching))
+	assert.Equal(t, testErrNoDeep, Find(testErrNoDeep, alwaysMatching))
+	assert.Equal(t, testErrOneDeep, Find(testErrOneDeep, alwaysMatching))
+	assert.Equal(t, testErrTwoDeep, Find(testErrTwoDeep, alwaysMatching))
+	assert.Equal(t, testErrThreeDeep, Find(testErrThreeDeep, alwaysMatching))
 
-	assert.Equal(t, nil, FindFirstMatching(testErrNoDeep, neverMatching))
-	assert.Equal(t, nil, FindFirstMatching(testErrOneDeep, neverMatching))
-	assert.Equal(t, nil, FindFirstMatching(testErrTwoDeep, neverMatching))
-	assert.Equal(t, nil, FindFirstMatching(testErrThreeDeep, neverMatching))
+	assert.Equal(t, nil, Find(testErrNoDeep, neverMatching))
+	assert.Equal(t, nil, Find(testErrOneDeep, neverMatching))
+	assert.Equal(t, nil, Find(testErrTwoDeep, neverMatching))
+	assert.Equal(t, nil, Find(testErrThreeDeep, neverMatching))
 }
