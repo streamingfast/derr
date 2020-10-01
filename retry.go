@@ -14,7 +14,7 @@ func backoff(maxretries uint64) retry.Backoff {
 		panic(err)
 	}
 	b = retry.WithMaxRetries(maxretries, b)
-	b = retry.WithMaxDuration(5*time.Second, b)
+	b = retry.WithCappedDuration(5*time.Second, b)
 	return b
 }
 
