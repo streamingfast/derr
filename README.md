@@ -1,9 +1,9 @@
-# dfuse Errors Library
-[![reference](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://pkg.go.dev/github.com/dfuse-io/derr)
+# StreamingFast Errors Library
+[![reference](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://pkg.go.dev/github.com/streamingfast/derr)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This repository contains all common code for handling errors across our
-various services. It is part of **[dfuse](https://github.com/dfuse-io/dfuse)**.
+various services. It is part of **[StreamingFast](https://github.com/streamingfast/streamingfast)**.
 
 
 ## Usage
@@ -17,7 +17,7 @@ various services. It is part of **[dfuse](https://github.com/dfuse-io/dfuse)**.
    [`errors.go`](./errors.go) and use that.
 3. Craft your own custom Error builder (in your project's `errors.go`,
    see
-   [eosws](https://github.com/dfuse-io/dgraphql/blob/develop/errors.go))
+   [eosws](https://github.com/streamingfast/dgraphql/blob/develop/errors.go))
    and use that in your code.  Craft a meaningful `derr.C` (or
    `derr.ErrorCode`) with a good name (see below), reuse where
    possible.
@@ -132,10 +132,10 @@ This error logging will ultimately trickle down to our monitoring infrastructure
 **Issues and PR in this repo related strictly to the derr library.**
 
 Report any protocol-specific issues in their
-[respective repositories](https://github.com/dfuse-io/dfuse#protocols)
+[respective repositories](https://github.com/streamingfast/streamingfast#protocols)
 
 **Please first refer to the general
-[dfuse contribution guide](https://github.com/dfuse-io/dfuse/blob/master/CONTRIBUTING.md)**,
+[StreamingFast contribution guide](https://github.com/streamingfast/streamingfast/blob/master/CONTRIBUTING.md)**,
 if you wish to contribute to this code base.
 
 
