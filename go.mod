@@ -1,11 +1,11 @@
 module github.com/streamingfast/derr
 
-go 1.13
+go 1.16
 
 require (
 	github.com/pkg/errors v0.8.1
 	github.com/sethvargo/go-retry v0.1.0
-	github.com/streamingfast/logging v0.0.0-20210811175431-f3b44b61606a // indirect
+	github.com/streamingfast/logging v0.0.0-20220222131651-12c3943aac2e
 	github.com/stretchr/testify v1.4.0
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
 	go.opencensus.io v0.22.1
