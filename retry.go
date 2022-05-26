@@ -5,14 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/sethvargo/go-retry"
+	retry "github.com/sethvargo/go-retry"
 )
 
 func backoff(maxretries uint64) retry.Backoff {
-	b, err := retry.NewFibonacci(time.Second)
-	if err != nil {
-		panic(err)
-	}
+	b := retry.NewFibonacci(time.Second)
 	b = retry.WithMaxRetries(maxretries, b)
 	b = retry.WithCappedDuration(5*time.Second, b)
 	return b
@@ -23,7 +20,7 @@ func Retry(retries uint64, f func(ctx context.Context) error) error {
 }
 
 func RetryContext(ctx context.Context, retries uint64, f func(ctx context.Context) error) error {
-	err := retry.Do(context.Background(), backoff(retries), func(ctx context.Context) error {
+	err := retry.Do(ctx, backoff(retries), func(ctx context.Context) error {
 		err := f(ctx)
 		return retry.RetryableError(err)
 	})
