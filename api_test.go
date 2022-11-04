@@ -16,9 +16,11 @@ package derr
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
+	dedentLib "github.com/lithammer/dedent"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,4 +66,31 @@ func Test_Find(t *testing.T) {
 	assert.Equal(t, nil, Find(testErrOneDeep, neverMatching))
 	assert.Equal(t, nil, Find(testErrTwoDeep, neverMatching))
 	assert.Equal(t, nil, Find(testErrThreeDeep, neverMatching))
+}
+
+func TestDebugErrorChain(t *testing.T) {
+	tests := []struct {
+		name string
+		on   error
+		want string
+	}{
+		{"nil error", nil, dedent(`<nil>`)},
+		{"single error", errors.New("end"), dedent(`
+			*errors.errorString | end
+		`)},
+		{"multi errors", fmt.Errorf("root: %w", fmt.Errorf("middle: %w", errors.New("end"))), dedent(`
+			*fmt.wrapError | root: middle: end
+			*fmt.wrapError | middle: end
+			*errors.errorString | end
+		`)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, DebugErrorChain(tt.on))
+		})
+	}
+}
+
+func dedent(input string) string {
+	return strings.TrimSpace(dedentLib.Dedent(input))
 }

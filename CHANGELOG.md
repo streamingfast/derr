@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `derr.Is` (and deprecated `derr.HasAny`)
 
 ### Added
+
+* Added `derr.DebugErrorChain` that makes it easy to get a debug string of the chain of the error.
 * Added `derr.Is` that replaces `derr.HasAny` (see deprecation notice).
 * Added `derr.Find` that replaces `derr.FindFirstMatching` (see deprecation notice).
 

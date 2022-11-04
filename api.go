@@ -16,6 +16,8 @@ package derr
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -59,11 +61,14 @@ func Find(err error, matcher func(err error) bool) error {
 }
 
 // Walk traverse error causes in a top to bottom fashion. Starting from the top
-// `err` received, will invoke `processor(err)` with it. If the `processor`
-// returns `true`, check if `err` has a cause and continue walking it like
-// this recursively. If `processor` return a `non-nil` value, stop walking at
-// this point. If `processor` returns an `error` stop walking from there and bubble
-// up the error through `Walk` return value.
+// `err` received, will invoke `processor(err)` with it. Walk calls immediately
+// on start the `processor(err)` with the root error received that can be `nil`,
+// so you must ready to handle the fact that you might receive `nil`.
+//
+// If the `processor`  returns `true`, check if `err` has a cause and continue
+// walking it like this recursively. If `processor` return a `non-nil` value, stop
+// walking at this point. If `processor` returns an `error` stop walking from there
+// and bubble up the error through `Walk` return value.
 //
 // Returns an `error` if `processor` returned an `error`, `nil` otherwise
 func Walk(err error, processor func(err error) (bool, error)) error {
@@ -160,4 +165,27 @@ func convertStatusToErrorResponse(ctx context.Context, st *status.Status) *Error
 	default:
 		return UnexpectedError(ctx, st.Err())
 	}
+}
+
+// DebugErrorChain returns a debug human friendly string represents the full stack of errors
+// with the type of.
+func DebugErrorChain(err error) (out string) {
+	if err == nil {
+		return "<nil>"
+	}
+
+	first := true
+	builder := &strings.Builder{}
+	Walk(err, func(errEntry error) (bool, error) {
+		format := "%T | %s"
+		if !first {
+			format = "\n" + format
+		}
+
+		first = false
+		builder.WriteString(fmt.Sprintf(format, errEntry, errEntry.Error()))
+		return true, nil
+	})
+
+	return builder.String()
 }
