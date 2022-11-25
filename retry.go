@@ -24,5 +24,8 @@ func RetryContext(ctx context.Context, retries uint64, f func(ctx context.Contex
 		err := f(ctx)
 		return retry.RetryableError(err)
 	})
-	return errors.Unwrap(err)
+	if unwrappedErr := errors.Unwrap(err); unwrappedErr != nil {
+		return unwrappedErr
+	}
+	return err
 }
