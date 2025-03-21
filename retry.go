@@ -82,5 +82,6 @@ func backoff(maxretries uint64) retry.Backoff {
 	b := retry.NewFibonacci(time.Second)
 	b = retry.WithMaxRetries(maxretries, b)
 	b = retry.WithCappedDuration(5*time.Second, b)
+	b = retry.WithJitterPercent(35, b)
 	return b
 }
