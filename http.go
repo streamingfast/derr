@@ -17,10 +17,7 @@ package derr
 import (
 	"context"
 	"encoding/json"
-	"net"
 	"net/http"
-	"os"
-	"syscall"
 
 	"github.com/streamingfast/logging"
 
@@ -31,6 +28,9 @@ import (
 // WriteError writes the receiver error to HTTP and log it into a Zap logger at the same
 // time with the right level based on the actual status code. The `WriteError` handles
 // various type for the `err` parameter.
+//
+// Deprecated: HTTP error handling has moved to [dhttp](https://github.com/streamingfast/dhttp) package,
+// which provides a more comprehensive and flexible approach to error handling in HTTP contexts.
 func WriteError(ctx context.Context, w http.ResponseWriter, message string, err error) {
 	response := ToErrorResponse(ctx, err)
 	zlogger := logging.Logger(ctx, zlog)
@@ -57,20 +57,4 @@ func logWriteError(logger *zap.Logger, prefix string, err error) {
 	}
 
 	logger.Check(level, prefix).Write(zap.Error(err))
-}
-
-// IsClientSideNetworkError returns wheter the error received is a network error caused by the client side
-// that could not be possibily handled correctly on the server side anyway.
-func IsClientSideNetworkError(err error) bool {
-	netErr, isNetErr := err.(*net.OpError)
-	if !isNetErr {
-		return false
-	}
-
-	syscallErr, isSyscallErr := netErr.Err.(*os.SyscallError)
-	if !isSyscallErr {
-		return false
-	}
-
-	return syscallErr.Err == syscall.ECONNRESET || syscallErr.Err == syscall.EPIPE
 }

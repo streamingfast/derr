@@ -20,11 +20,18 @@ import (
 	"strings"
 )
 
+// Deprecated: HTTP error handling has moved to [dhttp](https://github.com/streamingfast/dhttp) package,
+// which provides a more comprehensive and flexible approach to error handling in HTTP contexts.
 type ErrorCode string
 
 // C is a sugar syntax for `derr.ErrorCode("a_string_code")` (sugared to `derr.C("a_string_code")`)
+//
+// Deprecated: HTTP error handling has moved to [dhttp](https://github.com/streamingfast/dhttp) package,
+// which provides a more comprehensive and flexible approach to error handling in HTTP contexts.
 func C(code string) ErrorCode { return ErrorCode(code) }
 
+// Deprecated: HTTP error handling has moved to [dhttp](https://github.com/streamingfast/dhttp) package,
+// which provides a more comprehensive and flexible approach to error handling in HTTP contexts.
 type ErrorResponse struct {
 	Code    ErrorCode              `json:"code"`
 	TraceID string                 `json:"trace_id"`

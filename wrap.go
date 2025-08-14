@@ -88,5 +88,4 @@ func addDebugInfo(s *status.Status) {
 	// debug stack.. which will be passed
 	// In the `DebugInfo.Detail`, we can put the pod name, and other contextual info, like the
 	// binary program name or something.
-	return
 }

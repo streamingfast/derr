@@ -123,6 +123,9 @@ func HasAny(err error, cause error) bool {
 // - If `err` was wrapped, find the most cause which is an `ErrorResponse` and returns it.
 // - If `err` is a status.Status (or one that was wrapped), convert it to an ErrorResponse
 // - Otherwise, return an `UnexpectedError` with the cause sets to `err` received.
+//
+// Deprecated: HTTP error handling has moved to [dhttp](https://github.com/streamingfast/dhttp) package,
+// which provides a more comprehensive and flexible approach to error handling in HTTP contexts.
 func ToErrorResponse(ctx context.Context, err error) *ErrorResponse {
 	response := Find(err, isErrorResponse)
 	if response != nil {
