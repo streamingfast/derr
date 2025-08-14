@@ -21,7 +21,7 @@ func TestRetryContext(t *testing.T) {
 
 func TestRetryContextNextFailure(t *testing.T) {
 	var count int
-	err := RetryContext(context.Background(), 2, func(ctx context.Context) error {
+	err := RetryContext(context.Background(), 2, func(context.Context) error {
 		count++
 		if count > 1 {
 			return nil
@@ -36,7 +36,7 @@ func TestRetryContextCanceledContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	err := RetryContext(ctx, 2, func(ctx context.Context) error {
+	err := RetryContext(ctx, 2, func(context.Context) error {
 		t.Fail()
 		return nil
 	})
